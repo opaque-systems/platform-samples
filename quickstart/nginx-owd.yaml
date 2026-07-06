@@ -1,0 +1,19 @@
+---
+workload:
+  application-class-id: "045c591e-2251-4039-b9f8-3617a139f49b"
+  spec: nginx-deployment.yaml
+  manufacturer: Opaque Systems
+  application-id: opaqe-nginx-sample
+  name: Nginx Dogfooding
+  platform-class-id: "019dab37-563c-7fdb-ae63-fbd213d6a2f0"
+  version: "0.0.1"
+
+policy:
+  runtime: standard
+  lock-digests: true
+
+mesh:
+  enable: false
+
+logging:
+  format: json

@@ -1,0 +1,110 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opaqe-nginx-sample
+  namespace: opaque
+data:
+  index.txt: |
+    Hello!
+
+         ███████    ███████████    █████████      ██████    █████  █████ ██████████
+       ███░░░░░███ ░░███░░░░░███  ███░░░░░███   ███░░░░███ ░░███  ░░███ ░░███░░░░░█
+      ███     ░░███ ░███    ░███ ░███    ░███  ███    ░░███ ░███   ░███  ░███  █ ░
+     ░███      ░███ ░██████████  ░███████████ ░███     ░███ ░███   ░███  ░██████
+     ░███      ░███ ░███░░░░░░   ░███░░░░░███ ░███   ██░███ ░███   ░███  ░███░░█
+     ░░███     ███  ░███         ░███    ░███ ░░███ ░░████  ░███   ░███  ░███ ░   █
+      ░░░███████░   █████        █████   █████ ░░░██████░██ ░░████████   ██████████
+        ░░░░░░░    ░░░░░        ░░░░░   ░░░░░    ░░░░░░ ░░   ░░░░░░░░   ░░░░░░░░░░
+
+    The Confidential AI Platform
+
+    ┌──────────────────────────────────────────────────┐
+    │                                                  │
+    │   Status    ● Running                            │
+    │   Runtime   CoCo + Opaque                        │
+    │   Server    nginx/1.27-alpine                    │
+    │                                                  │
+    └──────────────────────────────────────────────────┘
+
+  default.conf: |
+    server {
+        listen 80;
+        root /usr/share/nginx/html;
+        default_type text/plain;
+        location / {
+            try_files $uri /index.txt;
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opaqe-nginx-sample
+  namespace: opaque
+  labels:
+    app: opaqe-nginx-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opaqe-nginx-sample
+  template:
+    metadata:
+      labels:
+        app: opaqe-nginx-sample
+    spec:
+      imagePullSecrets:
+        - name: opaque-platform-registry-credentials
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: html
+          configMap:
+            name: opaqe-nginx-sample
+            items:
+              - key: index.txt
+                path: index.txt
+        - name: nginx-conf
+          configMap:
+            name: opaqe-nginx-sample
+            items:
+              - key: default.conf
+                path: default.conf
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: logs
+              mountPath: /var/log/nginx
+            - name: html
+              mountPath: /usr/share/nginx/html
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opaqe-nginx-sample
+  namespace: opaque
+  labels:
+    app: opaqe-nginx-sample
+spec:
+  type: LoadBalancer
+  selector:
+    app: opaqe-nginx-sample
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
