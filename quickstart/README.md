@@ -9,7 +9,7 @@ platform.
 namespace in which OPAQUE is deployed in your Kubernetes cluster.
 
 For example, if your deployment of OPAQUE lives in a namespace called
-`opaque-platform`, change all instances of `namespace: opaque` in
+`opaque-platform`, change all instances of `namespace: default` in
 `nginx-deployment.yaml` accordingly.
 
 **Second**, adjust the `imagePullSecrets` field in `nginx-deployment.yaml` to

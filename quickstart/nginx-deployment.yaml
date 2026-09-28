@@ -2,8 +2,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: opaqe-nginx-sample
-  namespace: opaque
+  name: nginx-demo
+  namespace: default
 data:
   index.txt: |
     Hello!
@@ -40,19 +40,19 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: opaqe-nginx-sample
-  namespace: opaque
+  name: nginx-demo
+  namespace: default
   labels:
-    app: opaqe-nginx-sample
+    app: nginx-demo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: opaqe-nginx-sample
+      app: nginx-demo
   template:
     metadata:
       labels:
-        app: opaqe-nginx-sample
+        app: nginx-demo
     spec:
       imagePullSecrets:
         - name: registry-credentials
@@ -61,13 +61,13 @@ spec:
           emptyDir: {}
         - name: html
           configMap:
-            name: opaqe-nginx-sample
+            name: nginx-demo
             items:
               - key: index.txt
                 path: index.txt
         - name: nginx-conf
           configMap:
-            name: opaqe-nginx-sample
+            name: nginx-demo
             items:
               - key: default.conf
                 path: default.conf
@@ -96,14 +96,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: opaqe-nginx-sample
-  namespace: opaque
+  name: nginx-demo
+  namespace: default
   labels:
-    app: opaqe-nginx-sample
+    app: nginx-demo
 spec:
   type: LoadBalancer
   selector:
-    app: opaqe-nginx-sample
+    app: nginx-demo
   ports:
     - name: http
       port: 80
